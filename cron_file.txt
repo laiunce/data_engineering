@@ -1,0 +1,28 @@
+
+################################################################################################################################################################
+# process 
+################################################################################################################################################################
+
+#se corre a una hora mayor a 3 horas ya que el server esta adelantado 3 horas respecto la local. daily corre todos los dias execto el domingo. 
+#30 7 * * 1,2,3,4,5,6,7 JARDIR=/mnt/loaders/loaders-app/ /mnt/loaders/scripts/_rundaily.sh >> /var/www/html/logs/loaders/_rundaily_`date "+\%Y-\%m-\%d_\%H:\%M:\%S"`.log 2>&1
+
+#se corre cada una hora el proceso de carga ongoing
+#0 */1 * * * JARDIR=/mnt/loaders/loaders-app/ /mnt/loaders/scripts/_runongoing.sh >> /var/www/html/logs/loaders/_runongoing_`date "+\%Y-\%m-\%d_\%H:\%M:\%S"`.log 2>&1
+
+#se corre cada semana el proceso de carga cada 15 dias para actualizar la data
+#30 7  * * 7 JARDIR=/mnt/loaders/loaders-app/ /mnt/loaders/scripts/_runweekly.sh >> /var/www/html/logs/loaders/_runweekly_`date "+\%Y-\%m-\%d_\%H:\%M:\%S"`.log 2>&1
+
+
+
+################################################################################################################################################################
+# process ccu
+################################################################################################################################################################
+
+#se corre a una hora mayor a 3 horas ya que el server esta adelantado 3 horas respecto la local. daily corre todos los dias execto el domingo. 
+#30 8 * * 1,2,3,4,5,6,7 JARDIR=/mnt/loaders/loaders-app/ /mnt/loaders/scripts/ccu_rundaily.sh >> /var/www/html/logs/loaders/ccu_rundaily_`date "+\%Y-\%m-\%d_\%H:\%M:\%S"`.log 2>&1
+
+#se corre cada una hora el proceso de carga ongoing
+#0 */1 * * * JARDIR=/mnt/loaders/loaders-app/ /mnt/loaders/scripts/ccu_runongoing.sh >> /var/www/html/logs/loaders/ccu_runongoing_`date "+\%Y-\%m-\%d_\%H:\%M:\%S"`.log 2>&1
+
+#se corre cada semana el proceso de carga cada 15 dias para actualizar la data
+#30 8  * * 7 JARDIR=/mnt/loaders/loaders-app/ /mnt/loaders/scripts/ccu_runweekly.sh >> /var/www/html/logs/loaders/ccu_runweekly_`date "+\%Y-\%m-\%d_\%H:\%M:\%S"`.log 2>&1

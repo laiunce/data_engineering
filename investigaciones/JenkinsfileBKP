@@ -1,0 +1,70 @@
+pipeline {
+  agent any
+  parameters {
+    booleanParam(name: 'DEPLOY_BUILD', defaultValue: false, description: 'Deploy resulting JAR to GCS path')
+  }
+  tools {
+    maven 'maven_3.5.0'
+    jdk '1.8'
+  }
+  environment {
+      MAVEN_HOME = tool('maven_3.5.0')
+  }
+  stages {
+    stage ('Debug') {
+      steps {
+        sh '''
+          echo "PATH = ${PATH}"
+          echo "M2_HOME = ${M2_HOME}"
+          echo "MAVEN_HOME = ${MAVEN_HOME}"
+          echo "DEPLOY_DIR = ${DEPLOY_DIR}"
+        '''
+      }
+    }
+    stage('Build'){
+      steps {
+        dir("cel_loaders") {
+          script {
+            if (isUnix()) {
+              // to debug:
+              //sh "bash -x ${MAVEN_HOME}/bin/mvn clean install"
+              sh "${MAVEN_HOME}/bin/mvn clean install"
+            } else {
+              bat(/mvn clean package/)
+            }
+          }
+        }
+      }
+      post {
+        success {
+          junit '**/target/surefire-reports/TEST-*.xml'
+          archiveArtifacts 'cel_loaders/target/*.jar'
+        }
+      }
+    }
+    stage('Deploy') {
+      environment {
+        DEPLOY_DIR = '/mnt/loaders/loaders-app'
+        SCRIPTS_OPT_DIR = '/mnt/loaders/scripts/'
+      }
+      when {
+        branch 'master'
+        expression { params.DEPLOY_BUILD }
+      }
+      steps {
+        echo "Deploying to ${DEPLOY_DIR}"
+        sudo cp target/*bundled*.jar ${DEPLOY_DIR}
+        echo "Deploying scripts to ${SCRIPTS_DIR}"
+        sudo cp ../scripts/*.sh ${SCRIPTS_DIR} && sudo chmod +x ${SCRIPTS_DIR}*.sh && ls -lat ${SCRIPTS_DIR}
+        echo "Installing crontab from file instructions/cron-jobs-setup.txt"
+        cd /opt/loaders/
+        sudo crontab cron_file.txt
+        sudo crontab -l
+        echo " <<<<<<<<<<<<<<< FINISH >>>>>>>>>>>>>>"
+      }
+    }
+  }
+  options {
+    buildDiscarder(logRotator(numToKeepStr:'10'))
+  }
+}
